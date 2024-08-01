@@ -12,7 +12,6 @@ const getProducts = async (query: string) => {
 			next: { revalidate: 3600 },
 		}
 	);
-	console.log('response', res);
 	if (!res.ok) {
 		// This will activate the closest `error.js` Error Boundary
 		throw new Error('Failed to fetch data');

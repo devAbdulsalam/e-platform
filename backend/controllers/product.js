@@ -14,24 +14,32 @@ export const getProducts = asyncHandler(async (req, res) => {
 // Search products
 export const searchProduct = asyncHandler(async (req, res) => {
 	const query = req.query.q;
+
 	try {
 		let products;
 		if (query) {
 			const regex = new RegExp(query, 'i');
+			const queryConditions = [
+				{ title: regex },
+				{ description: regex },
+				{ category: regex },
+			];
+
+			// Check if the query can be parsed as a number for price search
+			const price = parseFloat(query);
+			if (!isNaN(price)) {
+				queryConditions.push({ price: price });
+			}
+
 			products = await Product.find({
-				$or: [
-					{ title: regex },
-					{ description: regex },
-					{ category: regex },
-					{ price: regex },
-				],
+				$or: queryConditions,
 			});
 		} else {
 			products = await Product.find();
 		}
+
 		res.json(products);
 	} catch (error) {
-		console.log(error);
 		res.status(500).json({ message: error.message });
 	}
 });
@@ -50,3 +58,5 @@ export const getProduct = asyncHandler(async (req, res) => {
 		res.status(500).json({ message: error.message });
 	}
 });
+
+// CastError: Cast to Number failed for value "/men/i" (type RegExp) at path "price" for model "Product"
